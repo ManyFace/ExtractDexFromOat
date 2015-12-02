@@ -10,9 +10,13 @@ Tested on unbuntu and windows<br>
 
 ##Usage
 Run the following command:<br>
-python main.py -f <oat_file_path><br>
+```Bash
+python main.py -f <oat_file_path>
+```
 Example:<br>
+```Bash
 python main.py -f extra/demo.oat <br>
+```
 
 The extracted dex files will be saved to "out" folder which is located in current work directory.
 
