@@ -1,6 +1,6 @@
 # ExtractDexFromOat
 Since Android L, dex in apk will be transformed to oat file when installed. Oat file is actually elf file whose <br>
-type is shared object. This tool first parses oat file and then stores the dex files in oat file.
+type is shared object. This tool first parses oat file and then stores the dex files embedded in oat file.
 
 ##Dependency
 python2.7 <br>
