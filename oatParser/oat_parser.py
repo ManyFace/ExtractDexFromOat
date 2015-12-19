@@ -72,27 +72,31 @@ class OatParser:
         finally:
             self.__close()
 
-    def save_dex_files(self):
+    def save_dex_files(self, is_fix_checksum=False):
         if not self.dex_headers:
-            print "there is no dex file"
+            print "There is no dex file."
 
-        saved_file_list = []
+        saved_file_list = {}
         out_put_dir = os.path.join(os.getcwd(), "out")
         if not os.path.exists(out_put_dir):
             os.mkdir(out_put_dir)
 
         for dex_header in self.dex_headers:
-            dex_data = dex_header.get_dex_file_data()
+            dex_data = dex_header.get_dex_file_data(is_fix_checksum)
             md5 = md5sum(dex_data)
             save_name = md5 + ".dex"
             with open(os.path.join(out_put_dir, save_name), "wb") as dex_file:
                 dex_file.write(dex_data)
-            saved_file_list.append(save_name)
+            saved_file_list[save_name] = dex_header
 
-        show_info = os.linesep + "Saved " + str(len(saved_file_list)) + " dex files!" + os.linesep
-        show_info += "file list:" + os.linesep
-        for file_name in saved_file_list:
-            show_info += "\t" + file_name + os.linesep
+        show_info = os.linesep + "Saved " + str(len(saved_file_list)) + " dex files!" + os.linesep * 2
+        show_info += "file list=>" + os.linesep
+        str_lens = [len(dex_header.get_path_in_device()) for dex_header in saved_file_list.values()]
+        str_lens.append(40)
+        max_str_len = max(str_lens)
+        show_info += "file_path_in_device".center(max_str_len) + "\t" + "output_name".center(max_str_len) + os.linesep
+        for file_name, dex_header in saved_file_list.items():
+            show_info += dex_header.get_path_in_device().ljust(max_str_len) + "\t" + file_name.center(max_str_len) + os.linesep
         print show_info
 
 
@@ -123,6 +127,7 @@ class OatParser:
             dex_header = DexHeader(dex_Header_buf)
             dex_file_data_buf = self.__get_buf(dex_file_offset, dex_header.get_file_size())
             dex_header.set_dex_file_data(dex_file_data_buf)
+            dex_header.set_path_in_device(dex_file_location)
             self.dex_headers.append(dex_header)
 
             self.oat_file.seek(file_cur_position, os.SEEK_SET)  # set file pointer to method offsets
@@ -147,7 +152,9 @@ class OatParser:
 
 
 def main():
-    pass
+    oat_file_path = "extra/system@framework@boot.oat"
+    oat_parser = OatParser(oat_file_path)
+    oat_parser.parse()
 
 
 if __name__ == '__main__':

@@ -11,11 +11,14 @@ Tested on Ubuntu and Windows<br>
 ##Usage
 Run the following command:<br>
 ```Bash
-python main.py -f <oat_file_path>
+python main.py -f oat_file_path [--fix-checksum]
 ```
+* oat_file_path: The path of oat file.
+* --fix-checksum: Fix the checksum of output dex files if you use this parameter.
+
 Example:<br>
 ```Bash
-python main.py -f extra/demo.oat
+python main.py -f extra/demo.oat --fix-checksum
 ```
 
 The extracted dex files will be saved to "out" folder which is located in current work directory.

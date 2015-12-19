@@ -4,13 +4,13 @@ __author__ = 'cpf'
 
 import argparse
 import os
-
 from oatParser.oat_parser import OatParser
 
 
 def main():
     arg_parser = argparse.ArgumentParser(description="Oat Parser")
-    arg_parser.add_argument("-f", dest="oat_file_path", required=True, help="the oat file path")
+    arg_parser.add_argument("-f", dest="oat_file_path", required=True, help="The oat file path")
+    arg_parser.add_argument("--fix-checksum", action="store_true", help="Whether fix the checksum of output dex files")
     args = arg_parser.parse_args()
 
     oat_file_path = args.oat_file_path
@@ -21,10 +21,9 @@ def main():
     try:
         oat_parser = OatParser(oat_file_path)
         oat_parser.parse()
-        oat_parser.save_dex_files()
+        oat_parser.save_dex_files(args.fix_checksum)
     except Exception, ex:
         print "Error: " + str(ex)
-
 
 if __name__ == '__main__':
     main()

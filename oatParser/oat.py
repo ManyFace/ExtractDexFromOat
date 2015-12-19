@@ -3,6 +3,7 @@
 __author__ = 'cpf'
 
 from oatParser.meta import MetaClass
+from util.util import *
 
 
 class OatHeader(MetaClass):
@@ -74,6 +75,13 @@ class DexHeader(MetaClass):
     def __init__(self, buf):
         self.unpack(buf)
         self.dex_file_data = None
+        self.path_in_device = None
+
+    def set_path_in_device(self, path_in_device):
+        self.path_in_device = path_in_device
+
+    def get_path_in_device(self):
+        return self.path_in_device
 
     def get_file_size(self):
         return self.file_size_
@@ -84,8 +92,33 @@ class DexHeader(MetaClass):
     def set_dex_file_data(self, dex_file_data):
         self.dex_file_data = dex_file_data
 
-    def get_dex_file_data(self):
-        return self.dex_file_data
+    def get_dex_file_data(self, is_fix_checksum=False):
+        if is_fix_checksum:
+            return self.__fix_dex_checksum()
+        else:
+            return self.dex_file_data
+
+    def __fix_dex_checksum(self):
+        fixed_data = self.__fix_sha1(self.dex_file_data)
+        fixed_data = self.__fix_adler32_checksum(fixed_data)
+        return fixed_data
+
+    # ("magic_", "8s"),
+    # ("checksum_", "I"), 4bytes
+    # ("signature_", "20s"),
+    def __fix_sha1(self, dex_file_data):
+        if not dex_file_data:
+            raise Exception("The dex file data is null!")
+
+        sha1 = sha1_digest(dex_file_data[32:])
+        return dex_file_data[0:12] + sha1 + dex_file_data[32:]
+
+    def __fix_adler32_checksum(self, dex_file_data):
+        if not dex_file_data:
+            raise Exception("The dex file data is null!")
+
+        adler32 = adler32_checksum(dex_file_data[12:])
+        return dex_file_data[0:8] + struct.pack("i", adler32) + dex_file_data[12:]
 
 
 def main():
