@@ -3,7 +3,6 @@
 __author__ = 'cpf'
 import hashlib
 import zlib
-import struct
 
 
 def md5sum(data):
@@ -21,6 +20,25 @@ def sha1_digest(data):
 def adler32_checksum(data):
     adler32 = zlib.adler32(data)
     return adler32  # signed int, 4bytes
+
+
+class AndroidVersion:
+    ANDROIDL = "androidL"
+    ANDROIDM = "androidM"
+    CURRENT_VERSION = ANDROIDL
+
+    @classmethod
+    def set_version(cls, version):
+        if version == "L":
+            cls.CURRENT_VERSION = cls.ANDROIDL
+        elif version == "M":
+            cls.CURRENT_VERSION = cls.ANDROIDM
+        else:
+            raise Exception("unknown android version")
+
+    @classmethod
+    def get_verison(cls):
+        return cls.CURRENT_VERSION
 
 
 def main():

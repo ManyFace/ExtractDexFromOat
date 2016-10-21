@@ -11,17 +11,18 @@ Tested on Ubuntu and Windows<br>
 ##Usage
 Run the following command:<br>
 ```Bash
-python main.py -f oat_file_path [--fix-checksum]
+python main.py -f oat_file_path [-v {L,M}] [--fix-checksum]
 ```
 * oat_file_path: The path of oat file.
+* L,M: L means AndroidL, M means AndroidM. Default is L.
 * --fix-checksum: Fix the checksum of output dex files if you use this parameter.
 
 Example:<br>
 ```Bash
-python main.py -f extra/demo.oat --fix-checksum
+python main.py -f extra/demo.oat -v L --fix-checksum
 ```
 
 The extracted dex files will be saved to "out" folder which is located in current work directory.
 
 ##Note
-* This tool works for oat file which is produced by Android 5.1.1 (32bit) and didn't test other android versions.
+* Only tested for AndroidL and AndroidM (32bit)

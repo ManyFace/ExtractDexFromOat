@@ -106,8 +106,11 @@ class OatParser:
             raise Exception("oatdata doesn't exist")
 
         # oatHeader
-        oat_header_buf = self.__get_buf(oatdata_sym.get_offset(self.shdr_table), len(OatHeader))
-        oat_header = OatHeader(oat_header_buf)
+        OatHeaderCompatible = OatHeader
+        if AndroidVersion.get_verison() == AndroidVersion.ANDROIDM:
+            OatHeaderCompatible = OatHeaderM
+        oat_header_buf = self.__get_buf(oatdata_sym.get_offset(self.shdr_table), len(OatHeaderCompatible))
+        oat_header = OatHeaderCompatible(oat_header_buf)
         key_value_store = self.oat_file.read(oat_header.get_key_value_store_size())
         oat_header.set_key_value_store(key_value_store)
 

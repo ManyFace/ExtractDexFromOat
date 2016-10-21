@@ -4,7 +4,7 @@ __author__ = 'cpf'
 
 from oatParser.meta import MetaClass
 from util.util import *
-
+import struct
 
 class OatHeader(MetaClass):
     __fields_info__ = (
@@ -43,6 +43,35 @@ class OatHeader(MetaClass):
 
     def set_key_value_store(self, key_value_store):
         self.key_value_store_ = key_value_store
+
+
+class OatHeaderM(OatHeader):
+    __fields_info__ = (
+        ("magic_", "4s"),
+        ("version", "4s"),
+        ("adler32_checksum_", "I"),
+        ("instruction_set_", "I"),
+        ("instruction_set_features_", "I"),
+        ("dex_file_count_", "I"),  # dex file count
+        ("executable_offset_", "I"),
+        ("interpreter_to_interpreter_bridge_offset_", "I"),
+        ("interpreter_to_compiled_code_bridge_offset_", "I"),
+        ("jni_dlsym_lookup_offset_", "I"),
+        # ("portable_imt_conflict_trampoline_offset_", "I"), # OatHeader does not contains thoes fields in adnroid 6
+        # ("portable_resolution_trampoline_offset_", "I"),
+        # ("portable_to_interpreter_bridge_offset_", "I"),
+        ("quick_generic_jni_trampoline_offset_", "I"),
+        ("quick_imt_conflict_trampoline_offset_", "I"),
+        ("quick_resolution_trampoline_offset_", "I"),
+        ("quick_to_interpreter_bridge_offset_", "I"),
+        ("image_patch_delta_", "I"),
+        ("image_file_location_oat_checksum_", "I"),
+        ("image_file_location_oat_data_begin_", "I"),
+        ("key_value_store_size_", "I"),  #
+    )
+
+    def __init__(self, buf):
+        super(OatHeaderM, self).__init__(buf)
 
 
 class DexHeader(MetaClass):

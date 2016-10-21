@@ -5,7 +5,7 @@ __author__ = 'cpf'
 import struct
 import os
 
-from util import *
+from util.util import *
 
 
 class Meta(type):
@@ -41,8 +41,10 @@ class MetaClass():
             attr_value = getattr(self, attr)
             if isinstance(attr_value, str):
                 fmt_str += "\t" + attr + "=" + attr_value.encode("hex") + os.linesep
+            elif isinstance(attr_value, int):
+                fmt_str += "\t" + attr + "=" + str(hex(attr_value)) + os.linesep
             else:
-                fmt_str += "\t" + attr + "=" + str(dexToHex(attr_value)) + os.linesep
+                fmt_str += "\t" + attr + "=" + str(attr_value) + os.linesep
 
         return fmt_str
 
