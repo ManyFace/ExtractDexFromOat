@@ -11,10 +11,10 @@ Tested on Ubuntu and Windows<br>
 ##Usage
 Run the following command:<br>
 ```Bash
-python main.py -f oat_file_path [-v {L,M}] [--fix-checksum]
+python main.py -f oat_file_path [-v {L,M,N}] [--fix-checksum]
 ```
 * oat_file_path: The path of oat file.
-* L,M: L means AndroidL, M means AndroidM. Default is L.
+* L, M, N: L means AndroidL, M means AndroidM and N means AndroidN. Default is L.
 * --fix-checksum: Fix the checksum of output dex files if you use this parameter.
 
 Example:<br>
@@ -25,4 +25,4 @@ python main.py -f extra/demo.oat -v L --fix-checksum
 The extracted dex files will be saved to "out" folder which is located in current work directory.
 
 ##Note
-* Only tested for AndroidL and AndroidM (32bit)
+* Only tested for AndroidL, AndroidM and AndroidN(32bit)

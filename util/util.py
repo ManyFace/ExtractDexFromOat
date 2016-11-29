@@ -25,6 +25,7 @@ def adler32_checksum(data):
 class AndroidVersion:
     ANDROIDL = "androidL"
     ANDROIDM = "androidM"
+    ANDROIDN = "androidN"
     CURRENT_VERSION = ANDROIDL
 
     @classmethod
@@ -33,6 +34,8 @@ class AndroidVersion:
             cls.CURRENT_VERSION = cls.ANDROIDL
         elif version == "M":
             cls.CURRENT_VERSION = cls.ANDROIDM
+        elif version == "N":
+            cls.CURRENT_VERSION = cls.ANDROIDN
         else:
             raise Exception("unknown android version")
 

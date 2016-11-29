@@ -107,7 +107,7 @@ class OatParser:
 
         # oatHeader
         OatHeaderCompatible = OatHeader
-        if AndroidVersion.get_verison() == AndroidVersion.ANDROIDM:
+        if AndroidVersion.get_verison() == AndroidVersion.ANDROIDM or AndroidVersion.get_verison() == AndroidVersion.ANDROIDN:
             OatHeaderCompatible = OatHeaderM
         oat_header_buf = self.__get_buf(oatdata_sym.get_offset(self.shdr_table), len(OatHeaderCompatible))
         oat_header = OatHeaderCompatible(oat_header_buf)
@@ -135,8 +135,12 @@ class OatParser:
 
             self.oat_file.seek(file_cur_position, os.SEEK_SET)  # set file pointer to method offsets
 
-            methods_offsets_pointer_buf = self.oat_file.read(dex_header.get_class_defs_size() * 4)
-            methods_offsets_pointers = struct.unpack("<" + str(dex_header.get_class_defs_size()) + "I", methods_offsets_pointer_buf)
+            if AndroidVersion.get_verison() == AndroidVersion.ANDROIDN:
+                class_offsets_offset = struct.unpack("<I", self.oat_file.read(4))[0]
+                lookup_table_offset = struct.unpack("<I", self.oat_file.read(4))[0]
+            else:
+                methods_offsets_pointer_buf = self.oat_file.read(dex_header.get_class_defs_size() * 4)
+                methods_offsets_pointers = struct.unpack("<" + str(dex_header.get_class_defs_size()) + "I", methods_offsets_pointer_buf)
 
     def __close(self):
         if self.oat_file:
@@ -155,9 +159,11 @@ class OatParser:
 
 
 def main():
-    oat_file_path = "extra/system@framework@boot.oat"
+    AndroidVersion.set_version("N")
+    oat_file_path = "../bootN.oat"
     oat_parser = OatParser(oat_file_path)
     oat_parser.parse()
+    oat_parser.save_dex_files(True)
 
 
 if __name__ == '__main__':
