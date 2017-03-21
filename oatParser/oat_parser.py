@@ -2,9 +2,10 @@
 # encoding=utf-8
 __author__ = 'cpf'
 
-import struct
+import struct, os
 
-from oatParser.elf import *
+from oatParser.elf32 import Elf32Header, Pht32, Sht32, SymbolTable32, StringTable
+from oatParser.elf64 import Elf64Header, Pht64, Sht64, SymbolTable64
 from oatParser.oat import *
 from util.util import *
 
@@ -12,7 +13,7 @@ from util.util import *
 class OatParser:
     def __init__(self, oat_file_path):
         self.oat_file_path = oat_file_path
-        self.elf32_header = None
+        self.elf_header = None
         self.phdr_table = None
         self.shdr_table = None
         self.sect_name_str_table = None
@@ -27,25 +28,24 @@ class OatParser:
             self.oat_file = open(self.oat_file_path, "rb")
 
             # parse elf header
-            elf32_header_buf = self.oat_file.read(len(Elf32Header))
-            self.elf32_header = Elf32Header(elf32_header_buf)
+            self.__init_elf_info()
 
             # parse program header table
-            phdr_table_buf = self.__get_buf(self.elf32_header.get_phdr_table_offset(), self.elf32_header.get_phdr_table_size())
-            self.phdr_table = ProgramHeaderTable()
-            phdr_table_entry_num = self.elf32_header.get_phdr_table_entry_num()
-            phdr_table_entry_size = self.elf32_header.get_phdr_table_entry_size()
+            phdr_table_buf = self.__get_buf(self.elf_header.get_phdr_table_offset(), self.elf_header.get_phdr_table_size())
+            # self.phdr_table = Pht32()
+            phdr_table_entry_num = self.elf_header.get_phdr_table_entry_num()
+            phdr_table_entry_size = self.elf_header.get_phdr_table_entry_size()
             self.phdr_table.init_table(phdr_table_buf, phdr_table_entry_num, phdr_table_entry_size)
 
             # parse section header table
-            shdr_table_buf = self.__get_buf(self.elf32_header.get_shdr_table_offset(), self.elf32_header.get_shdr_table_size())
-            self.shdr_table = SectionHeaderTable()
-            shdr_table_entry_num = self.elf32_header.get_shdr_table_entry_num()
-            shdr_table_entry_size = self.elf32_header.get_shdr_table_entry_size()
+            shdr_table_buf = self.__get_buf(self.elf_header.get_shdr_table_offset(), self.elf_header.get_shdr_table_size())
+            # self.shdr_table = Sht32()
+            shdr_table_entry_num = self.elf_header.get_shdr_table_entry_num()
+            shdr_table_entry_size = self.elf_header.get_shdr_table_entry_size()
             self.shdr_table.init_table(shdr_table_buf, shdr_table_entry_num, shdr_table_entry_size)
 
             # parse section name string table
-            sect_name_header = self.shdr_table.get_entries()[self.elf32_header.get_sect_name_str_table_index()]
+            sect_name_header = self.shdr_table.get_entries()[self.elf_header.get_sect_name_str_table_index()]
             sect_name_str_table_buf = self.__get_buf(sect_name_header.get_offset(), sect_name_header.get_size())
             self.sect_name_str_table = StringTable(sect_name_header, sect_name_str_table_buf, True)
 
@@ -60,7 +60,7 @@ class OatParser:
             # parse symbol table
             symbol_table_shdr = self.shdr_table.get_symbol_table_shdr()
             symbol_table_buf = self.__get_buf(symbol_table_shdr.get_offset(), symbol_table_shdr.get_size())
-            self.symbol_table = SymbolTable()
+            # self.symbol_table = SymbolTable32()
             self.symbol_table.init_table(symbol_table_buf, symbol_table_shdr.get_entry_num(), symbol_table_shdr.get_entry_size())
 
             # set symbol name
@@ -99,6 +99,21 @@ class OatParser:
             show_info += dex_header.get_path_in_device().ljust(max_str_len) + "\t" + file_name.center(max_str_len) + os.linesep
         print show_info
 
+    def __init_elf_info(self):
+        # 32 bit
+        elf_header_buf = self.__get_buf(0, len(Elf32Header))
+        self.elf_header = Elf32Header(elf_header_buf)
+        self.phdr_table = Pht32()
+        self.shdr_table = Sht32()
+        self.symbol_table = SymbolTable32()
+
+        if not self.elf_header.is_32bit():
+            # 64 bit
+            elf_header_buf = self.__get_buf(0, len(Elf64Header))
+            self.elf_header = Elf64Header(elf_header_buf)
+            self.phdr_table = Pht64()
+            self.shdr_table = Sht64()
+            self.symbol_table = SymbolTable64()
 
     def __parse_oatdata(self):
         oatdata_sym = self.symbol_table.get_oatdata_sym()
@@ -147,6 +162,12 @@ class OatParser:
             self.oat_file.close()
 
     def __get_buf(self, offset, buf_size):
+        '''
+        read data from oat file
+        :param offset:
+        :param buf_size:
+        :return: data
+        '''
         if not self.oat_file:
             raise Exception("file is null!")
         if offset < 0:

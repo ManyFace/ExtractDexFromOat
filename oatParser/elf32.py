@@ -29,6 +29,19 @@ class Elf32Header(MetaClass):
     def __init__(self, buf):
         self.unpack(buf)
 
+    def is_32bit(self):
+        '''
+        if elf is 32 bit
+        :return: True:32bit, False: 64bit
+        '''
+        EI_CLASS = 4
+        ei_class_value = ord(self.e_ident[EI_CLASS])
+        if ei_class_value == 1:
+            return True
+        elif ei_class_value == 2:
+            return False
+        raise Exception("unknown EI_CLASS:%d" % (ei_class_value))
+
     def get_phdr_table_offset(self):
         return self.e_phoff
 
@@ -73,7 +86,7 @@ class Elf32Phdr(MetaClass):  # program header
         self.unpack(buf)
 
 
-class ProgramHeaderTable(Table):
+class Pht32(Table):  # ProgramHeaderTable
     def __init__(self):
         Table.__init__(self, Elf32Phdr)
 
@@ -134,7 +147,7 @@ class Elf32Shdr(MetaClass):  # section header
         return self.sh_addr
 
 
-class SectionHeaderTable(Table):
+class Sht32(Table):
     def __init__(self):
         Table.__init__(self, Elf32Shdr)
         self.headers_dict = {}  # {sect_name:header}
@@ -245,7 +258,7 @@ class Elf32Sym(MetaClass):
         return self.st_size
 
 
-class SymbolTable(Table):
+class SymbolTable32(Table):
     def __init__(self):
         Table.__init__(self, Elf32Sym)
         self.elf32_syms_dict = {}  # {name:elf32_sym}
